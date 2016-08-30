@@ -18,8 +18,8 @@ class ecs::ecs_server(
     default => $ecs_node_name
   }
   $required_packages = $::osfamily ? {
-    'RedHat' => ['wget', 'tar', 'docker', 'xfsprogs'],
-    'Debian' => ['wget', 'tar', 'docker.io', 'xfsprogs'],
+    'RedHat' => ['wget', 'tar', 'docker', 'xfsprogs', 'curl', 'python'],
+    'Debian' => ['wget', 'tar', 'docker.io', 'xfsprogs', 'curl', 'python'],
   }
   $ecs_tcp_ports = [9024, 9020, 9011, 4443]
   $ecs_udp_ports = [1095, 1096, 1098, 1198, 1298, 3218, 9091, 9094, 9100, 9201, 9203, 9208, 9209, 9250, 9888]
@@ -183,7 +183,7 @@ class ecs::ecs_server(
       require        => Exec["start ecs container ${node_name}"],
     } ->
     exec { "node ${node_name}: wait network services start":
-      command   => "test  \"`netstat -n --tcp --listen | grep -c ${grep_query_str}`\" = \"${services_ports_count}\"",
+      command   => "test \"`netstat -n --tcp --listen | grep -c ${grep_query_str}`\" = \"${services_ports_count}\" && sleep 30",
       tries     => 120,
       try_sleep => 5,
     } ->
